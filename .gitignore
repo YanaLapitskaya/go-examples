@@ -2,3 +2,6 @@
 !**/*.go
 !**/
 !.gitignore
+!Gopkg.lock
+!Gopkg.toml
+/vendor
