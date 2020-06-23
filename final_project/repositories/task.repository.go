@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"database/sql"
-	"fmt"
 	"go-exercises/final_project/configs"
 	"go-exercises/final_project/models"
 	"log"
@@ -16,11 +15,12 @@ func GetAllTasks() *sql.Rows {
 	return rows
 }
 
-func GetGroupByTaskId(taskId int) *models.GroupDb {
-	var group models.GroupDb
-	fmt.Println(taskId)
-	configs.Db.QueryRow("SELECT * FROM groups WHERE id = $1", taskId).Scan(&group.Id, &group.Title)
-	return &group
+func GetTasksByGroupId(groupId int) *sql.Rows {
+	rows, err := configs.Db.Query("SELECT * FROM tasks where group_id = $1", groupId)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return rows
 }
 
 func AddTask(task *models.TaskDb) models.TaskDb {
