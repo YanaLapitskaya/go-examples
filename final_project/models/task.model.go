@@ -1,18 +1,15 @@
 package models
 
+// it's how we work with task
 type Task struct {
-	Id    int    `json:"id"`
-	Title string `json:"title"`
+	Id    int      `json:"id"`
+	Title string   `json:"title"`
+	Group *GroupDb `json:"group"`
 }
 
-func NewTask(id int, title string) Task {
-	return Task{Id: id, Title: title}
-}
-
-func DeleteTask(id int) int {
-	return id
-}
-
-func UpdateTask(newId int, newTitle string) *Task {
-	return &Task{Id: newId, Title: newTitle}
+// it's how task is stored in db
+type TaskDb struct {
+	Id      int    `json:"id"`
+	Title   string `json:"title"`
+	GroupId int    `json:"group_id"`
 }

@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"fmt"
 	"go-exercises/final_project/configs"
 	"go-exercises/final_project/models"
 	"log"
@@ -15,14 +16,22 @@ func GetAllTasks() *sql.Rows {
 	return rows
 }
 
-func AddTask(task *models.Task) models.Task {
-	var newTask models.Task
+func GetGroupByTaskId(taskId int) *models.GroupDb {
+	var group models.GroupDb
+	fmt.Println(taskId)
+	configs.Db.QueryRow("SELECT * FROM groups WHERE id = $1", taskId).Scan(&group.Id, &group.Title)
+	return &group
+}
+
+func AddTask(task *models.TaskDb) models.TaskDb {
+	var newTask models.TaskDb
 	configs.Db.QueryRow(
-		"INSERT INTO tasks (title) VALUES ($1) RETURNING id, title", task.Title,
-	).Scan(&newTask.Id, &newTask.Title)
+		"INSERT INTO tasks (title, group_id) VALUES ($1, $2) RETURNING id, title, group_id", task.Title, task.GroupId,
+	).Scan(&newTask.Id, &newTask.Title, &newTask.GroupId)
 	return newTask
 }
 
+// TODO add updates for timestamps and groups
 func UpdateTask(id string, task *models.Task) models.Task {
 	var updatedTask models.Task
 	configs.Db.QueryRow(
