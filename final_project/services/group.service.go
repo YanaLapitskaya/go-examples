@@ -19,8 +19,7 @@ func GetGroups() []models.Group {
 			log.Fatal(err)
 		}
 
-		tasksRows := repositories.GetTasksByGroupId(groupDb.Id)
-		tasks := ReadTasksFromSql(tasksRows)
+		tasks := repositories.GetTasksByGroupId(groupDb.Id)
 
 		group := models.Group{Id: groupDb.Id, Title: groupDb.Title, Tasks: tasks}
 		groups = append(groups, group)

@@ -16,11 +16,11 @@ func GetAllGroups() *sql.Rows {
 	return rows
 }
 
-func GetGroupByTaskId(taskId int) *models.GroupDb {
+func GetGroupByGroupId(groupId int, c chan *models.GroupDb) {
 	var group models.GroupDb
-	fmt.Println(taskId)
-	configs.Db.QueryRow("SELECT * FROM groups WHERE id = $1", taskId).Scan(&group.Id, &group.Title)
-	return &group
+	fmt.Println(groupId)
+	configs.Db.QueryRow("SELECT * FROM groups WHERE id = $1", groupId).Scan(&group.Id, &group.Title)
+	c <- &group
 }
 
 func AddGroup(group *models.GroupDb) models.GroupDb {

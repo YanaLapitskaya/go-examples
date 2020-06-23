@@ -15,12 +15,24 @@ func GetAllTasks() *sql.Rows {
 	return rows
 }
 
-func GetTasksByGroupId(groupId int) *sql.Rows {
+func GetTasksByGroupId(groupId int) []models.TaskDb {
 	rows, err := configs.Db.Query("SELECT * FROM tasks where group_id = $1", groupId)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return rows
+	defer rows.Close()
+
+	tasks := make([]models.TaskDb, 0)
+
+	for rows.Next() {
+		var taskDb models.TaskDb
+		if err := rows.Scan(&taskDb.Id, &taskDb.Title, &taskDb.GroupId); err != nil {
+			// Query rows will be closed with defer.
+			log.Fatal(err)
+		}
+		tasks = append(tasks, taskDb)
+	}
+	return tasks
 }
 
 func AddTask(task *models.TaskDb) models.TaskDb {
