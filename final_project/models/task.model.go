@@ -1,6 +1,6 @@
 package models
 
-// it's how we work with task
+// it's abstract model
 type Task struct {
 	Id    int      `json:"id"`
 	Title string   `json:"title"`

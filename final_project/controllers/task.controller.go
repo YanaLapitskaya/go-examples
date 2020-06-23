@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"go-exercises/final_project/models"
 	"go-exercises/final_project/repositories"
 	"go-exercises/final_project/services"
@@ -20,7 +19,6 @@ func GetAllTasks(w http.ResponseWriter, r *http.Request) {
 	tasks := services.GetTasks()
 
 	response := Response{tasks}
-	fmt.Println(response)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
