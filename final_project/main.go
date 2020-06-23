@@ -29,6 +29,9 @@ func main() {
 	router.HandleFunc("/groups/{id}", controllers.UpdateGroup).Methods("PUT")
 	router.HandleFunc("/groups/{id}", controllers.DeleteGroup).Methods("DELETE")
 
+	router.HandleFunc("/timeframes", controllers.AddNewTimeframe).Methods("POST")
+	router.HandleFunc("/timeframes/{id}", controllers.DeleteTimeframe).Methods("DELETE")
+
 	if err := http.ListenAndServe(appPort, router); err != nil {
 		log.Panic(err)
 	}
