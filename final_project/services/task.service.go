@@ -3,30 +3,35 @@ package services
 import (
 	"go-exercises/final_project/models"
 	"go-exercises/final_project/repositories"
-	"log"
 )
 
-func GetTasks() []models.Task {
-	rows := repositories.GetAllTasks()
-	defer rows.Close()
+func GetTasks() ([]models.Task, error) {
+	tasksDb, err := repositories.GetAllTasks()
+	if err != nil {
+		return nil, err
+	}
 
 	tasks := make([]models.Task, 0)
 
-	for rows.Next() {
-		var taskDb models.TaskDb
-		if err := rows.Scan(&taskDb.Id, &taskDb.Title, &taskDb.GroupId); err != nil {
-			// Query rows will be closed with defer.
-			log.Fatal(err)
-		}
-		groupChan := make(chan *models.GroupDb)
-		timeframesChan := make(chan []models.Timeframe)
+	for _, taskDb := range tasksDb {
+		groupChan := make(chan repositories.GroupChannel)
+		timeframesChan := make(chan repositories.TimeframesChannel)
 		go repositories.GetGroupByGroupId(taskDb.GroupId, groupChan)
 		go repositories.GetTimeframesByTaskId(taskDb.Id, timeframesChan)
 
-		group, timeframes := <-groupChan, <-timeframesChan
+		groupResult, timeframesResult := <-groupChan, <-timeframesChan
 
-		task := models.Task{Id: taskDb.Id, Title: taskDb.Title, Group: group, Timeframes: timeframes}
+		if groupResult.Err != nil {
+			return nil, groupResult.Err
+		}
+
+		if timeframesResult.Err != nil {
+			return nil, timeframesResult.Err
+		}
+
+		task := models.Task{Id: taskDb.Id, Title: taskDb.Title, Group: groupResult.Group, Timeframes: timeframesResult.Timeframes}
 		tasks = append(tasks, task)
 	}
-	return tasks
+
+	return tasks, nil
 }

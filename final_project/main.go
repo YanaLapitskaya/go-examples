@@ -3,6 +3,7 @@ package main
 import (
 	"go-exercises/final_project/configs"
 	"go-exercises/final_project/controllers"
+	"go-exercises/final_project/middlewares"
 	"log"
 	"net/http"
 
@@ -18,6 +19,9 @@ func main() {
 
 	configs.InitDB()
 	router := mux.NewRouter().StrictSlash(true)
+
+	router.Use(middlewares.LoggingHandler)
+	router.Use(middlewares.ErrorHandler)
 
 	router.HandleFunc("/tasks", controllers.GetAllTasks).Methods("GET")
 	router.HandleFunc("/tasks", controllers.AddNewTask).Methods("POST")

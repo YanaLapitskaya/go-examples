@@ -1,60 +1,77 @@
 package repositories
 
 import (
-	"database/sql"
 	"go-exercises/final_project/configs"
 	"go-exercises/final_project/models"
-	"log"
 )
 
-func GetAllTasks() *sql.Rows {
+func GetAllTasks() ([]models.TaskDb, error) {
 	rows, err := configs.Db.Query("SELECT * FROM tasks")
-	if err != nil {
-		log.Fatal(err)
-	}
-	return rows
-}
-
-func GetTasksByGroupId(groupId int) []models.TaskDb {
-	rows, err := configs.Db.Query("SELECT * FROM tasks where group_id = $1", groupId)
-	if err != nil {
-		log.Fatal(err)
-	}
 	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
 
-	tasks := make([]models.TaskDb, 0)
+	tasksDb := make([]models.TaskDb, 0)
 
 	for rows.Next() {
 		var taskDb models.TaskDb
 		if err := rows.Scan(&taskDb.Id, &taskDb.Title, &taskDb.GroupId); err != nil {
 			// Query rows will be closed with defer.
-			log.Fatal(err)
+			return nil, err
 		}
-		tasks = append(tasks, taskDb)
+		tasksDb = append(tasksDb, taskDb)
 	}
-	return tasks
+	return tasksDb, nil
 }
 
-func AddTask(task *models.TaskDb) models.TaskDb {
+func GetTasksByGroupId(groupId int) ([]models.TaskDb, error) {
+	rows, err := configs.Db.Query("SELECT * FROM tasks where group_id = $1", groupId)
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	tasksDb := make([]models.TaskDb, 0)
+
+	for rows.Next() {
+		var taskDb models.TaskDb
+		if err := rows.Scan(&taskDb.Id, &taskDb.Title, &taskDb.GroupId); err != nil {
+			// Query rows will be closed with defer.
+			return nil, err
+		}
+		tasksDb = append(tasksDb, taskDb)
+	}
+	return tasksDb, nil
+}
+
+func AddTask(task *models.TaskDb) (*models.TaskDb, error) {
 	var newTask models.TaskDb
-	configs.Db.QueryRow(
+	err := configs.Db.QueryRow(
 		"INSERT INTO tasks (title, group_id) VALUES ($1, $2) RETURNING id, title, group_id", task.Title, task.GroupId,
 	).Scan(&newTask.Id, &newTask.Title, &newTask.GroupId)
-	return newTask
+	if err != nil {
+		return nil, err
+	}
+	return &newTask, nil
 }
 
 // TODO add updates for timestamps and groups
-func UpdateTask(id string, task *models.Task) models.Task {
+func UpdateTask(id string, task *models.Task) (*models.Task, error) {
 	var updatedTask models.Task
-	configs.Db.QueryRow(
+	err := configs.Db.QueryRow(
 		"UPDATE tasks SET title = $1 WHERE id = $2 RETURNING id, title", task.Title, id,
 	).Scan(&updatedTask.Id, &updatedTask.Title)
-	return updatedTask
+	if err != nil {
+		return nil, err
+	}
+	return &updatedTask, nil
 }
 
-func DeleteTask(id string) {
+func DeleteTask(id string) error {
 	_, err := configs.Db.Exec("DELETE FROM tasks WHERE id = $1", id)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
