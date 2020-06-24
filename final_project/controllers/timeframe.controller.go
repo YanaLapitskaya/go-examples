@@ -11,21 +11,33 @@ import (
 )
 
 func AddNewTimeframe(w http.ResponseWriter, r *http.Request) {
-	reqBody, _ := ioutil.ReadAll(r.Body)
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
 	var timeframe models.Timeframe
-	json.Unmarshal(reqBody, &timeframe)
+	if err = json.Unmarshal(reqBody, &timeframe); err != nil {
+		panic(err)
+	}
 
-	newTimeframe := repositories.AddTimeframe(&timeframe)
+	newTimeframe, err := repositories.AddTimeframe(&timeframe)
+	if err != nil {
+		panic(err)
+	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newTimeframe)
+	if err = json.NewEncoder(w).Encode(newTimeframe); err != nil {
+		panic(err)
+	}
 }
 
 func DeleteTimeframe(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	repositories.DeleteTimeframe(id)
+	if err := repositories.DeleteTimeframe(id); err != nil {
+		panic(err)
+	}
 
 	w.WriteHeader(http.StatusNoContent)
 }

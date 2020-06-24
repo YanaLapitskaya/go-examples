@@ -16,42 +16,70 @@ func GetAllGroups(w http.ResponseWriter, r *http.Request) {
 		Groups []models.Group `json:"groups"`
 	}
 
-	groups := services.GetGroups()
+	groups, err := services.GetGroups()
+	if err != nil {
+		panic(err)
+	}
 
 	response := Response{groups}
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		panic(err)
+	}
 }
 
 func AddNewGroup(w http.ResponseWriter, r *http.Request) {
-	reqBody, _ := ioutil.ReadAll(r.Body)
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
 	var group models.GroupDb
-	json.Unmarshal(reqBody, &group)
+	if err = json.Unmarshal(reqBody, &group); err != nil {
+		panic(err)
+	}
 
-	newGroup := repositories.AddGroup(&group)
+	newGroup, err := repositories.AddGroup(&group)
+	if err != nil {
+		panic(err)
+	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newGroup)
+	if err := json.NewEncoder(w).Encode(newGroup); err != nil {
+		panic(err)
+	}
 }
 
 func UpdateGroup(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	reqBody, _ := ioutil.ReadAll(r.Body)
-	var group models.GroupDb
-	json.Unmarshal(reqBody, &group)
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
 
-	updatedGroup := repositories.UpdateGroup(id, &group)
+	var group models.GroupDb
+	if err = json.Unmarshal(reqBody, &group); err != nil {
+		panic(err)
+	}
+
+	updatedGroup, err := repositories.UpdateGroup(id, &group)
+	if err != nil {
+		panic(err)
+	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(updatedGroup)
+	if err = json.NewEncoder(w).Encode(updatedGroup); err != nil {
+		panic(err)
+	}
 }
 
 func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	repositories.DeleteGroup(id)
+	if err := repositories.DeleteGroup(id); err != nil {
+		panic(err)
+	}
 
 	w.WriteHeader(http.StatusNoContent)
 }

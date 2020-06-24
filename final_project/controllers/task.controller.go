@@ -16,22 +16,38 @@ func GetAllTasks(w http.ResponseWriter, r *http.Request) {
 		Tasks []models.Task `json:"tasks"`
 	}
 
-	tasks := services.GetTasks()
+	tasks, err := services.GetTasks()
+	if err != nil {
+		panic(err)
+	}
 
 	response := Response{tasks}
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		panic(err)
+	}
 }
 
 func AddNewTask(w http.ResponseWriter, r *http.Request) {
-	reqBody, _ := ioutil.ReadAll(r.Body)
-	var task models.TaskDb
-	json.Unmarshal(reqBody, &task)
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
 
-	newTask := repositories.AddTask(&task)
+	var task models.TaskDb
+	if err = json.Unmarshal(reqBody, &task); err != nil {
+		panic(err)
+	}
+
+	newTask, err := repositories.AddTask(&task)
+	if err != nil {
+		panic(err)
+	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newTask)
+	if err = json.NewEncoder(w).Encode(newTask); err != nil {
+		panic(err)
+	}
 }
 
 func UpdateTask(w http.ResponseWriter, r *http.Request) {
@@ -39,19 +55,28 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	var task models.Task
-	json.Unmarshal(reqBody, &task)
+	if err := json.Unmarshal(reqBody, &task); err != nil {
+		panic(err)
+	}
 
-	updatedTask := repositories.UpdateTask(id, &task)
+	updatedTask, err := repositories.UpdateTask(id, &task)
+	if err != nil {
+		panic(err)
+	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(updatedTask)
+	if err = json.NewEncoder(w).Encode(updatedTask); err != nil {
+		panic(err)
+	}
 }
 
 func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	repositories.DeleteTask(id)
+	if err := repositories.DeleteTask(id); err != nil {
+		panic(err)
+	}
 
 	w.WriteHeader(http.StatusNoContent)
 }

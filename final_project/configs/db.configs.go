@@ -3,6 +3,7 @@ package configs
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "github.com/lib/pq"
 )
@@ -30,5 +31,5 @@ func InitDB() {
 		panic(err)
 	}
 
-	fmt.Println("Successfully connected!")
+	log.Println("Successfully connected!")
 }
