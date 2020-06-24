@@ -10,14 +10,6 @@
   version = "v1.7.4"
 
 [[projects]]
-  digest = "1:27d0f60d5bee3e5a307e93aa996ebbd00514a9d58c3f0853ee91060a2f23c8eb"
-  name = "github.com/kyokomi/emoji"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "cab09f717dfe17c99b322c198d2dfe1690f19056"
-  version = "v2.2.2"
-
-[[projects]]
   digest = "1:53fdcc6cb976299b987ca544ee5f5cea5a2348051d9211604c96dfe3ba788ac7"
   name = "github.com/lib/pq"
   packages = [
@@ -34,7 +26,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/gorilla/mux",
-    "github.com/kyokomi/emoji",
     "github.com/lib/pq",
   ]
   solver-name = "gps-cdcl"
